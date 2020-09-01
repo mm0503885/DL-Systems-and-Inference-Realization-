@@ -1,0 +1,65 @@
+{
+    "model": {
+	"model_name": "Resnet34",
+	"model": "lab4_model.xml",
+	"weights": "lab4_model.bin"
+    },
+    "engine": {
+	"config": "accuracy_check.yml",
+	"launchers": [
+	    {
+	        "framework": "dlsdk",
+		"device": "CPU",
+		"adapter": "classification"
+	    }
+	],
+	"datasets": [{
+	    "name": "food11_dataset",
+	    "data_source": "food11re/evaluation",
+	    "annotation": "food11_eva_annotation.pickle",
+	    "preprocessing":[
+		{
+		    "type": "bgr_to_rgb"
+		},
+		{
+		    "use_pillow": true,
+		    "type": "resize",
+		    "size": 256,
+		    "interpolation": "BILINEAR"
+		},
+		{
+		    "type": "crop",
+		    "size": 224,
+		    "use_pillow": true
+		}
+	    ],
+	    "metrics": [
+		{
+		    "name": "accuracy",
+		    "type": "accuracy",
+		    "top_k": 1
+		}
+	    ]
+	}]
+    },
+    "compression": {
+	"target_device": "CPU",
+	"algorithms": [
+	    {
+		"name": "AccuracyAwareQuantization",
+		"params": {
+		    "preset": "accuracy",
+		    "maximal_drop": 0.005,
+		    "drop_type": "absolute",
+		    "base_algorithm": "DefaultQuantization",
+		    "metrics": [
+			{
+			    "name": "accuracy",
+			    "baseline_value": 0.875
+			}
+		    ]
+		}
+	    }
+	]
+    }
+}

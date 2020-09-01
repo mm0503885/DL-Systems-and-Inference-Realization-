@@ -1,0 +1,40 @@
+models:
+- name: resnet34
+  launchers: 
+    - framework: dlsdk
+      device: CPU
+      model: lab4_model.xml
+      weights: lab4_model.bin
+      adapter: classification
+  datasets:
+    - name: food11_datset
+      data_source: food11re/evaluation
+      annotation_conversion:
+        converter: food11
+        data_dir: food11re/evaluation
+        labels_file: label_map_food11.txt
+      annotation: food11_eva_annotation.pickle
+      
+      preprocessing:
+        - type: bgr_to_rgb
+
+        - type: resize
+          size: 256
+          use_pillow: true
+          interpolation: BILINEAR
+        
+        - type: crop
+          size: 224
+          use_pillow: true
+
+        - type: normalization
+          std: 255
+
+        - type: normalization
+          mean: ( 0.5, 0.5, 0.5 )
+          std : ( 0.5, 0.5, 0.5 )
+
+      metrics:
+        - name: accuracy
+          type: accuracy
+          top_k: 1
